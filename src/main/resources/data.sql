@@ -1,0 +1,1 @@
+insert into users values (default, 'TEST', 'TEST@test.com');
