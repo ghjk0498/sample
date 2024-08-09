@@ -1,6 +1,7 @@
-package com.khg.sample.user.mapper
+package com.khg.sample
 
 import com.khg.sample.user.domain.User
+import com.khg.sample.user.mapper.UserMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest
@@ -16,12 +17,12 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 
 /**
- * @Transactional AOP 적용 시 프록시를 통해 호출되며 이때 내부적으로 this 를 통하여 호출하면 프록시를 거치지 않기 때문에 AOP 가 적용되지 않는다.
+ * @Transactional AOP 적용 시 프록시를 통해 호출되며 이때 this 를 통하여 내부 호출하면 프록시를 거치지 않기 때문에 AOP 가 적용되지 않는다.
  * 참고: https://tech.kakaopay.com/post/overcome-spring-aop-with-kotlin/
  */
 @MybatisTest
 @ActiveProfiles("test")
-class TransactionalAnnotationCallByThisKeywordTest {
+class TransactionAndProxy {
 
     @Autowired
     private lateinit var context: ConfigurableApplicationContext
@@ -30,7 +31,7 @@ class TransactionalAnnotationCallByThisKeywordTest {
     private lateinit var userMapper: UserMapper
 
     /**
-     * 일반 메서드 내에서 트랜잭션 메서드를 this 로 호출 : 트랜잭션 적용 X
+     * 일반 메서드 내에서 트랜잭션 메서드를 this 로 내부 호출 : 트랜잭션 적용 X
      * this 를 통해 호출하면 프록시가 동작하지 않아 트랜잭션이 적용되지 않는다.
      */
     @Test
@@ -43,8 +44,8 @@ class TransactionalAnnotationCallByThisKeywordTest {
     }
 
     /**
-     * 일반 메서드 내에서 트랜잭션 메서드를 빈을 통해 우회하여 호출 : 트랜잭션 적용 O
-     * 빈을 통해 호출하면 프록시가 동작하여 트랜잭션이 적용된다.
+     * 일반 메서드 내에서 트랜잭션 메서드를 외부 호출 : 트랜잭션 적용 O
+     * 외부 호출하면 프록시가 동작하여 트랜잭션이 적용된다.
      */
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -74,13 +75,5 @@ class TransactionalAnnotationCallByThisKeywordTest {
         }
         return null
     }
-
-//    @Configuration
-//    class TestConfig {
-//        @Bean
-//        fun transactionTest(): TransactionalAnnotationCallByThisKeywordTest {
-//            return TransactionalAnnotationCallByThisKeywordTest()
-//        }
-//    }
 
 }
